@@ -1,6 +1,6 @@
 ﻿<?php
-require_once('simple_html_dom.php');
-require_once('rss_gen/rss_generator.inc.php');
+require_once('libs/simple_html_dom.php');
+require_once('libs/rss_generator.inc.php');
 
 error_reporting(E_ALL); ini_set('error_reporting', E_ALL);
 
