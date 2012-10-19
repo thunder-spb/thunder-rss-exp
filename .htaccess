@@ -1,0 +1,7 @@
+RewriteEngine on
+
+RewriteRule ^wot-news\.xml$				get-news.php [PT,L]
+
+RewriteRule ^(ru|eu|us|en|de|es|fr|pl|cs|cz|sea-en|th)/wot-news\.xml$				get-news.php?lang=$1 [PT,L]
+
+RewriteRule ^(ru|eu|us|en)/wowp-news\.xml$				get-news-wow.php?lang=$1 [PT,L]
