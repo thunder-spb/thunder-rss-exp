@@ -4,19 +4,20 @@ require_once('libs/rss_generator.inc.php');
 
 error_reporting(E_ALL); ini_set('error_reporting', E_ALL);
 
-$wot_sites = array( 'ru' => '.ru', 'eu' => '.eu', 'us' => '.com', 'de' => '.eu', 'fr' => '.eu', 'es' => '.eu', 'pl' => '.eu', 'en' => '.eu', 'cs' => '.eu', 'sea-en' => '-sea.com', 'th' => '-sea.com' );
-$wot_lang = array( 'ru' => 'ru_RU', 'eu' => 'en_US', 'us' => 'en_US', 'de' => 'de', 'fr' => 'fr', 'es' => 'es', 'pl' => 'pl', 'en' => 'en_US', 'cs' => 'cs', 'sea-en' => 'en_US', 'th' => 'th' );
+$wot_sites = array( 'ru' => '.ru', 'eu' => '.eu', 'us' => '.com', 'de' => '.eu', 'fr' => '.eu', 'es' => '.eu', 'pl' => '.eu', 'en' => '.eu', 'cs' => '.eu', 'sea-en' => '-sea.com', 'th' => '-sea.com', 'tr' => '.eu' );
+$wot_lang = array( 'ru' => 'ru_RU', 'eu' => 'en_US', 'us' => 'en_US', 'de' => 'de', 'fr' => 'fr', 'es' => 'es', 'pl' => 'pl', 'en' => 'en_US', 'cs' => 'cs', 'sea-en' => 'en_US', 'th' => 'th', 'tr' => 'tr' );
 
 $_lang = array('ru' => array(), 'en' => array());
 
-$_lang['ru']['comments'] = 'Обсуждение';
-$_lang['en']['comments'] = 'Comments';
-$_lang['de']['comments'] = 'Kommentare';
-$_lang['fr']['comments'] = 'Commentaires';
-$_lang['es']['comments'] = 'Comentarios';
-$_lang['pl']['comments'] = 'Komentarze';
-$_lang['cs']['comments'] = 'Komentáře';
-$_lang['th']['comments'] = 'ความเห็น';
+$_lang['ru']['comments'] = 'Обсуждение';	// Russia
+$_lang['en']['comments'] = 'Comments';		// English/US
+$_lang['de']['comments'] = 'Kommentare';	// Germany
+$_lang['fr']['comments'] = 'Commentaires';	// France
+$_lang['es']['comments'] = 'Comentarios';	// Espania
+$_lang['pl']['comments'] = 'Komentarze';	// Poland
+$_lang['cs']['comments'] = 'Komentáře';		// Czech
+$_lang['th']['comments'] = 'ความเห็น';			// Thai
+$_lang['tr']['comments'] = 'Yorumlar';		// Turkey
 
 function get_title() {
 	global $cur_lang;
@@ -31,6 +32,7 @@ function get_title() {
 		case 'ru'	: $res = 'Новости MMO World of Tanks с RU сервера'; break;
 		case 'sea-en'	: $res = 'Latest News from World of Tanks from SEA Server'; break;
 		case 'th'	: $res = 'ข่าวจาก World of Tanks จากเซิร์ฟเวอร์ SEA'; break;
+		case 'tr'	: $res = 'ขWorld of Tanks, Haberler'; break;
 		default		: $res = 'World of Tanks, News';
 	}
 	return $res;
@@ -50,6 +52,7 @@ function get_descr() {
 		case 'ru'	: $res = 'World of Tanks, Новости'; break;
 		case 'en'	: $res = 'World of tanks, News, EU cluster'; break;
 		case 'th'	: $res = 'World of tanks, News, SEA cluster'; break;
+		case 'tr'	: $res = 'World of tanks, Haber, EU küme'; break;
 		default		: $res = 'World of tanks, News';
 	}
 	return $res;
@@ -80,6 +83,7 @@ function _l($item) {
 		case 'cs'	: $str = $_lang['cs'][$item]; break;
 		case 'sea-en'	: $str = $_lang['en'][$item]; break;
 		case 'th'	: $str = $_lang['th'][$item]; break;
+		case 'tr'	: $str = $_lang['tr'][$item]; break;
 		default		: $str = $_lang['en'][$item]; break;
 	}
 	return $str;
@@ -89,7 +93,7 @@ function _l($item) {
 
 $def_lang = 'ru';
 $cur_lang = filter_input(INPUT_GET, "lang", FILTER_SANITIZE_STRING);
-if ($cur_lang == NULL || $cur_lang === false || !in_array($cur_lang, array('ru','eu','us','de','fr','es','pl','en','cs','sea-en','th')) ) { $cur_lang = $def_lang; }
+if ($cur_lang == NULL || $cur_lang === false || !in_array($cur_lang, array('ru','eu','us','de','fr','es','pl','en','cs','sea-en','th','tr')) ) { $cur_lang = $def_lang; }
 if ( $cur_lang != 'ru' ) { 
 	putenv('LC_ALL='.get_lang());
 	putenv('LANG='.get_lang());
@@ -121,8 +125,8 @@ function getResp($parr) {
 	curl_setopt($ch, CURLOPT_REFERER, "http://worldoftanks".get_site_domain()."/news/");
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	$content['content'] = curl_exec($ch);
+	$response = curl_getinfo($ch);// var_dump( $response );
 	if (!$content['content']) { $content['error']['text'] = 'Cannot get data from World of Tanks server.'; return $content; }
-	$response = curl_getinfo($ch);
 	
 	if ($response['http_code'] == 301 || $response['http_code'] == 302)
 		{
@@ -141,7 +145,7 @@ function getResp($parr) {
 	
 	if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) == 'image/jpeg') {
 		$content = array();
-		$content['error']['text'] = 'Cannot get data from WoT server. Maybe maintance?';
+		$content['error']['text'] = 'Cannot get data from WoT server. Maybe maintanence?';
 //		$response = json_encode($response);
 	}
 //	echo $c_type;
@@ -170,7 +174,7 @@ if (isset($response['error']['text'])) {
 
 		$item = new rssGenerator_item();
 		$item->title = $response['error']['text'];
-		$item->description = "Got en error. Site is not responding or in maintance.";
+		$item->description = "Got en error. Site is not responding or in maintanence.";
 		$item->link = "http://www.worldoftanks".get_site_domain()."/news/";
 		$item->guid = "";
 		$item->pubDate = date("r",time());
