@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once('libs/rss_generator.inc.php');
 require_once( "conf/const.php" );
 
